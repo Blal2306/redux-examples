@@ -1,0 +1,37 @@
+wget https://storage.googleapis.com/kubernetes-helm/helm-v2.6.2-linux-amd64.tar.gz  ---> Download helm
+tar zxfv helm-v2.6.2-linux-amd64.tar.gz -C ~/  ---> extract
+
+--- GET ADMIN ROLE ----
+kubectl create clusterrolebinding user-admin-binding \
+   --clusterrole=cluster-admin \
+   --user=$(gcloud config get-value account)
+
+kubectl create serviceaccount tiller --namespace kube-system ---> service account that will be used for deploying charts
+
+---- GIVE TILLER ADMIN ROLE -----
+kubectl create clusterrolebinding tiller-admin-binding \
+   --clusterrole=cluster-admin \
+   --serviceaccount=kube-system:tiller
+
+~/helm init --service-account=tiller   ---> initialize helm using the service account given
+~/helm repo update  ---> Update helm repo
+~/helm version  --> get the version of helm
+~/helm install --version=8.1.5 stable/redis   --> install redis on active context cluster
+
+
+kubectl get statefulsets
+kubectl get configmaps
+
+
+~/helm inspect stable/redis    ---> inspect the chart that will be deployed
+~/helm install --version=8.1.5 stable/redis --dry-run --debug
+
+
+
+
+
+
+
+
+
+

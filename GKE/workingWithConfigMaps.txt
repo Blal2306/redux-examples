@@ -1,0 +1,59 @@
+kubectl create configmap sample --from-literal=message=hello
+
+kubectl create configmap sample2 --from-file=sample2.properties 
+--- contents of the file ---
+message2=world
+foo=bar
+meaningOfLife=42
+----=---------
+
+##### using YAML Files for configs #####
+apiVersion: v1
+data:
+  airspeed: africanOrEuropean
+  meme: testAllTheThings
+kind: ConfigMap
+metadata:
+  name: sample3
+  namespace: default
+  selfLink: /api/v1/namespaces/default/configmaps/sample3
+#######################################
+kubectl apply -f config-map-3.yaml
+kubectl describe configmaps sample3
+***** CONSUMING CONFIGS *********
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pubsub
+spec:
+  selector:
+    matchLabels:
+      app: pubsub
+  template:
+    metadata:
+      labels:
+        app: pubsub
+    spec:
+      volumes:
+      - name: google-cloud-key
+        secret:
+          secretName: pubsub-key
+      containers:
+      - name: subscriber
+        image: gcr.io/google-samples/pubsub-sample:v1
+        volumeMounts:
+        - name: google-cloud-key
+          mountPath: /var/secrets/google
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/secrets/google/key.json
+        - name: INSIGHTS
+          valueFrom:
+            configMapKeyRef:
+              name: sample3
+              key: meme
+**********************************
+kubectl get pods
+kubectl exec -it pubsub-c498d5cbb-8s9m9 -- sh
+printenv
+

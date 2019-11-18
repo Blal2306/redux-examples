@@ -1,0 +1,44 @@
+kubectl describe pods dns-demo-2
+echo $(kubectl get pod dns-demo-2 --template={{.status.podIP}})
+
+format of FQDN ---> hostname.subdomain.namespace.svc.cluster.local
+ping dns-demo-2.dns-demo.default.svc.cluster.local
+
+--- PINGING -----
+kubectl exec -it dns-demo-1 /bin/bash
+
+
+apt-get update
+apt-get install -y iputils-ping  ---> install the ping tool
+apt-get install -y curl
+
+
+ping dns-demo.default.svc.cluster.local
+
+---- INGRESS RESOURCE ----
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: hello-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      Paths:
+     - path: /v1
+        backend:
+          serviceName: hello-svc  ------> deployed on ClusterIP
+          servicePort: 80
+      - path: /v2
+        backend:
+          serviceName: hello-lb-svc  ----> deployed on LoadBalancer
+          servicePort: 80
+---------------------------
+curl 35.244.157.42/v1
+
+
+
+
+
+
